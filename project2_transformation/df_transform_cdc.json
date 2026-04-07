@@ -1,1 +1,76 @@
-
+{
+    "name": "Data Transformation DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "DS_ADLS_RAW",
+                        "type": "DatasetReference"
+                    },
+                    "name": "ADLSRAW"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "Cleaned_CDC_Data",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sink1"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "RenamingColumns"
+                },
+                {
+                    "name": "DerivedAddDateParts"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          county as string,",
+                "          cumulative_cases as short,",
+                "          cumulative_deaths as short,",
+                "          date as string,",
+                "          fips_code as short,",
+                "          new_cases as short,",
+                "          new_deaths as short,",
+                "          state as string,",
+                "          state_fips as short",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     documentForm: 'documentPerLine') ~> ADLSRAW",
+                "ADLSRAW select(mapColumn(",
+                "          county,",
+                "          cases = cumulative_cases,",
+                "          deaths = cumulative_deaths,",
+                "          date,",
+                "          county_fips = fips_code,",
+                "          new_cases,",
+                "          new_deaths,",
+                "          state,",
+                "          state_code = state_fips",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> RenamingColumns",
+                "RenamingColumns derive(year = year(toDate(date)),",
+                "          month = month(toDate(date)),",
+                "          day = toInteger(substring(date,9,2))) ~> DerivedAddDateParts",
+                "DerivedAddDateParts sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     partitionBy('hash', 1)) ~> sink1"
+            ]
+        }
+    }
+}
