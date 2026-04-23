@@ -46,3 +46,5 @@ The pipeline follows a medallion architecture:
 - Debugged real-world data pipeline issues
 - Delivered analytics-ready data
 
+## This pipeline ensures that only clean and validated public health data is used for downstream analytics and reporting.
+
