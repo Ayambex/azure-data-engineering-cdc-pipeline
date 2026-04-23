@@ -3,6 +3,7 @@
 This project demonstrates an end-to-end data engineering pipeline built using Azure Data Factory.
 
 ## Architecture
+![Architecture](architecture.png)
 
 The pipeline follows a medallion architecture:
 
@@ -46,5 +47,7 @@ The pipeline follows a medallion architecture:
 - Debugged real-world data pipeline issues
 - Delivered analytics-ready data
 
-## This pipeline ensures that only clean and validated public health data is used for downstream analytics and reporting.
+
+### This pipeline ensures that only clean and validated public health data is used for downstream analytics and reporting.
+
 
