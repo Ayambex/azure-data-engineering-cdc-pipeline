@@ -1,1 +1,102 @@
-
+{
+    "name": "Validate_CDC_Data_DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Cleaned_CDC_Data",
+                        "type": "DatasetReference"
+                    },
+                    "name": "CDCCurated"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "Sink_Valid_CDC",
+                        "type": "DatasetReference"
+                    },
+                    "name": "validatedcdcSink"
+                },
+                {
+                    "dataset": {
+                        "referenceName": "Sink_Invalid_CDC",
+                        "type": "DatasetReference"
+                    },
+                    "name": "ValidationErrorsSink"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "SplitValidInvalid"
+                },
+                {
+                    "name": "DataTypeChange"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          county as string,",
+                "          cases as string,",
+                "          deaths as string,",
+                "          date as string,",
+                "          county_fips as string,",
+                "          new_cases as string,",
+                "          new_deaths as string,",
+                "          state as string,",
+                "          state_code as string,",
+                "          year as integer,",
+                "          month as integer,",
+                "          day as integer",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     format: 'parquet') ~> CDCCurated",
+                "DataTypeChange split(!isNull(state) && \r",
+                "!isNull(date) && \r",
+                "!isNull(cases) && \r",
+                "!isNull(deaths) && \r",
+                "cases >= 0 && \r",
+                "deaths >= 0,",
+                "     disjoint: false) ~> SplitValidInvalid@(Valid, Invalid)",
+                "CDCCurated derive(cases = toInteger(cases),",
+                "          deaths = toInteger(deaths),",
+                "          new_cases = toInteger(new_cases),",
+                "          new_deaths = toInteger(new_deaths)) ~> DataTypeChange",
+                "SplitValidInvalid@Valid sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          county as string,",
+                "          cases as string,",
+                "          deaths as string,",
+                "          date as string,",
+                "          county_fips as string,",
+                "          new_cases as string,",
+                "          new_deaths as string,",
+                "          state as string,",
+                "          state_code as string,",
+                "          year as integer,",
+                "          month as integer,",
+                "          day as integer",
+                "     ),",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> validatedcdcSink",
+                "SplitValidInvalid@Invalid sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     format: 'parquet',",
+                "     umask: 0022,",
+                "     preCommands: [],",
+                "     postCommands: [],",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> ValidationErrorsSink"
+            ]
+        }
+    }
+}
