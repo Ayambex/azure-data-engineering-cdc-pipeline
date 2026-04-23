@@ -30,11 +30,11 @@ The output confirms:
 
 ## Analytics Data Flow
 
-![Analytics Pipeline](analytics_pipeline.png)
+![Analytics Pipeline](Analysis Pipeline.png)
 
 ## Output Example
 
-![Analytics Output](analytics_output.png)
+![Analytics Output](Analytics Results.png)
 
 ## Key Insight
 
