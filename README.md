@@ -3,7 +3,7 @@
 This project demonstrates an end-to-end data engineering pipeline built using Azure Data Factory.
 
 ## Architecture
-![Architecture](architecture.png)
+![Architecture](Architecture/architecture.png)
 
 The pipeline follows a medallion architecture:
 
